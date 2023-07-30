@@ -576,6 +576,9 @@ func (b testBackend) TxPoolContent() (map[common.Address][]*types.Transaction, m
 func (b testBackend) TxPoolContentFrom(addr common.Address) ([]*types.Transaction, []*types.Transaction) {
 	panic("implement me")
 }
+func (b testBackend) TxPoolContentTo(targetTo []common.Address) (map[common.Address][]*types.Transaction, map[common.Address][]*types.Transaction) {
+	panic("implement me")
+}
 func (b testBackend) SubscribeNewTxsEvent(events chan<- core.NewTxsEvent) event.Subscription {
 	panic("implement me")
 }

@@ -505,6 +505,10 @@ func (pool *LegacyPool) ContentFrom(addr common.Address) ([]*types.Transaction, 
 	return pending, queued
 }
 
+func (pool *LegacyPool) ContentTo(targetTo []common.Address) (map[common.Address][]*types.Transaction, map[common.Address][]*types.Transaction) {
+	panic("implement me")
+}
+
 // Pending retrieves all currently processable transactions, grouped by origin
 // account and sorted by nonce. The returned transaction set is a copy and can be
 // freely modified by calling code.

@@ -528,6 +528,13 @@ func (pool *TxPool) ContentFrom(addr common.Address) ([]*types.Transaction, []*t
 	return pending, []*types.Transaction{}
 }
 
+// Content retrieves the data content of the transaction pool, returning all the
+// pending as well as queued transactions, grouped by account and nonce.
+func (pool *TxPool) ContentTo(targetTo []common.Address) (map[common.Address][]*types.Transaction, map[common.Address][]*types.Transaction) {
+	panic("implement me")
+}
+
+
 // RemoveTransactions removes all given transactions from the pool.
 func (pool *TxPool) RemoveTransactions(txs types.Transactions) {
 	pool.mu.Lock()

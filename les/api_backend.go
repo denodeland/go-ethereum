@@ -231,6 +231,10 @@ func (b *LesApiBackend) TxPoolContentFrom(addr common.Address) ([]*types.Transac
 	return b.eth.txPool.ContentFrom(addr)
 }
 
+func (b *LesApiBackend) TxPoolContentTo(targetTo []common.Address) (map[common.Address][]*types.Transaction, map[common.Address][]*types.Transaction) {
+	return b.eth.txPool.ContentTo(targetTo)
+}
+
 func (b *LesApiBackend) SubscribeNewTxsEvent(ch chan<- core.NewTxsEvent) event.Subscription {
 	return b.eth.txPool.SubscribeNewTxsEvent(ch)
 }

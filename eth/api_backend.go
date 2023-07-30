@@ -323,6 +323,10 @@ func (b *EthAPIBackend) TxPoolContentFrom(addr common.Address) ([]*types.Transac
 	return b.eth.txPool.ContentFrom(addr)
 }
 
+func (b *EthAPIBackend) TxPoolContentTo(targetTo []common.Address) (map[common.Address][]*types.Transaction, map[common.Address][]*types.Transaction) {
+	return b.eth.txPool.ContentTo(targetTo)
+}
+
 func (b *EthAPIBackend) TxPool() *txpool.TxPool {
 	return b.eth.txPool
 }

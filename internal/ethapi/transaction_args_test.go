@@ -331,6 +331,9 @@ func (b *backendMock) TxPoolContent() (map[common.Address][]*types.Transaction, 
 func (b *backendMock) TxPoolContentFrom(addr common.Address) ([]*types.Transaction, []*types.Transaction) {
 	return nil, nil
 }
+func (b *backendMock) TxPoolContentTo(targetTo []common.Address) (map[common.Address][]*types.Transaction, map[common.Address][]*types.Transaction) {
+	return nil, nil
+}
 func (b *backendMock) SubscribeNewTxsEvent(chan<- core.NewTxsEvent) event.Subscription      { return nil }
 func (b *backendMock) BloomStatus() (uint64, uint64)                                        { return 0, 0 }
 func (b *backendMock) ServiceFilter(ctx context.Context, session *bloombits.MatcherSession) {}
