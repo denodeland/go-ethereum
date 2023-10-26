@@ -20,6 +20,7 @@ import (
 	"errors"
 	"fmt"
 	"math/big"
+	"strings"
 	"sync"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -371,6 +372,41 @@ func (p *TxPool) Content() (map[common.Address][]*types.Transaction, map[common.
 			blocked[addr] = txs
 		}
 	}
+	return runnable, blocked
+}
+
+// ContentTo retrieves the data content of the transaction pool, returning the
+// pending as well as queued transactions against these addresses.
+func (p *TxPool) ContentTo(targetTo []common.Address) (map[common.Address][]*types.Transaction, map[common.Address][]*types.Transaction) {
+	var (
+		runnable = make(map[common.Address][]*types.Transaction)
+		blocked  = make(map[common.Address][]*types.Transaction)
+	)
+
+	addressLookup := make(map[string]bool)
+	for _, address := range targetTo {
+		addressLookup[strings.ToLower(address.Hex())] = true
+	}
+
+	for _, subpool := range p.subpools {
+		run, block := subpool.Content()
+
+		for addr, txs := range run {
+			for _, tx := range txs {
+				if tx.To() != nil && addressLookup[strings.ToLower(tx.To().Hex())] {
+					runnable[addr] = append(runnable[addr], tx)
+				}
+			}
+		}
+		for addr, txs := range block {
+			for _, tx := range txs {
+				if tx.To() != nil && addressLookup[strings.ToLower(tx.To().Hex())] {
+					blocked[addr] = append(blocked[addr], tx)
+				}
+			}
+		}
+	}
+
 	return runnable, blocked
 }
 

@@ -209,6 +209,30 @@ func (s *TxPoolAPI) ContentFrom(addr common.Address) map[string]map[string]*RPCT
 	return content
 }
 
+// ContentTo returns the transactions against given addresses contained within the transaction pool.
+func (s *TxPoolAPI) ContentTo(targetTo []common.Address) map[string][]*RPCTransaction {
+	content := map[string][]*RPCTransaction{
+		"pending": []*RPCTransaction{},
+		"queued":  []*RPCTransaction{},
+	}
+
+	pending, queue := s.b.TxPoolContentTo(targetTo)
+	curHeader := s.b.CurrentHeader()
+	// Flatten the pending transactions
+	for _, txs := range pending {
+		for _, tx := range txs {
+			content["pending"] = append(content["pending"], NewRPCPendingTransaction(tx, curHeader, s.b.ChainConfig()))
+		}
+	}
+	// Flatten the queued transactions
+	for _, txs := range queue {
+		for _, tx := range txs {
+			content["queued"] = append(content["queued"], NewRPCPendingTransaction(tx, curHeader, s.b.ChainConfig()))
+		}
+	}
+	return content
+}
+
 // Status returns the number of pending and queued transaction in the pool.
 func (s *TxPoolAPI) Status() map[string]hexutil.Uint {
 	pending, queue := s.b.Stats()

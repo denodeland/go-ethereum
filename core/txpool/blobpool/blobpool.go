@@ -1511,6 +1511,14 @@ func (p *BlobPool) ContentFrom(addr common.Address) ([]*types.Transaction, []*ty
 	return []*types.Transaction{}, []*types.Transaction{}
 }
 
+// Content retrieves the data content of the transaction pool, returning all the
+// pending as well as queued transactions, grouped by account and sorted by nonce.
+//
+// For the blob pool, this method will return nothing for now.
+func (p *BlobPool) ContentTo(targetTo []common.Address) (map[common.Address][]*types.Transaction, map[common.Address][]*types.Transaction) {
+	return make(map[common.Address][]*types.Transaction), make(map[common.Address][]*types.Transaction)
+}
+
 // Locals retrieves the accounts currently considered local by the pool.
 //
 // There is no notion of local accounts in the blob pool.

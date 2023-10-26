@@ -118,6 +118,10 @@ type SubPool interface {
 	// pending as well as queued transactions of this address, grouped by nonce.
 	ContentFrom(addr common.Address) ([]*types.Transaction, []*types.Transaction)
 
+	// ContentTo retrieves the data content of the transaction pool, returning all the
+	// pending as well as queued transactions, grouped by account and sorted by nonce.
+	ContentTo(targetTo []common.Address) (map[common.Address][]*types.Transaction, map[common.Address][]*types.Transaction)
+
 	// Locals retrieves the accounts currently considered local by the pool.
 	Locals() []common.Address
 
