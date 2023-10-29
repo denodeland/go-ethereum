@@ -183,6 +183,62 @@ func (api *FilterAPI) NewPendingTransactions(ctx context.Context, fullTx *bool) 
 	return rpcSub, nil
 }
 
+// NewPendingTransactions creates a subscription that is triggered each time a
+// transaction enters the transaction pool. If fullTx is true the full tx is
+// sent to the client, otherwise the hash is sent.
+func (api *FilterAPI) NewPendingTransactionsFiltered(ctx context.Context, addresses []common.Address) (*rpc.Subscription, error) {
+
+	// Check if notifications are supported in the provided context.
+	notifier, supported := rpc.NotifierFromContext(ctx)
+	if !supported {
+		return &rpc.Subscription{}, rpc.ErrNotificationsUnsupported
+	}
+
+	// Create a new subscription using the notifier.
+	rpcSub := notifier.CreateSubscription()
+
+	// Start a goroutine to process pending transactions and send notifications.
+	go func() {
+		txs := make(chan []*types.Transaction, 128)
+		pendingTxSub := api.events.SubscribePendingTxs(txs)
+		chainConfig := api.sys.backend.ChainConfig()
+
+		for {
+			select {
+			case txs := <-txs:
+				// Process each pending transaction and send notifications if the sender or receiver matches any address in the filter.
+				latest := api.sys.backend.CurrentHeader()
+				for _, tx := range txs {
+					if tx.To() != nil && containsAddress(addresses, *tx.To()) {
+						rpcTx := ethapi.NewRPCPendingTransaction(tx, latest, chainConfig)
+						notifier.Notify(rpcSub.ID, rpcTx)
+					}
+				}
+			case <-rpcSub.Err():
+				// Unsubscribe from pending transaction events when subscription is closed.
+				pendingTxSub.Unsubscribe()
+				return
+			case <-notifier.Closed():
+				// Unsubscribe from pending transaction events when notifier is closed.
+				pendingTxSub.Unsubscribe()
+				return
+			}
+		}
+	}()
+
+	return rpcSub, nil
+}
+
+// Helper function to check if an address is in the provided list.
+func containsAddress(addresses []common.Address, target common.Address) bool {
+	for _, addr := range addresses {
+		if addr == target {
+			return true
+		}
+	}
+	return false
+}
+
 // NewBlockFilter creates a filter that fetches blocks that are imported into the chain.
 // It is part of the filter package since polling goes with eth_getFilterChanges.
 func (api *FilterAPI) NewBlockFilter() rpc.ID {
